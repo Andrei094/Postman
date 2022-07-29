@@ -1,0 +1,366 @@
+{
+	"info": {
+		"_postman_id": "cf592f8f-a1c1-446b-a763-433ee215a27e",
+		"name": "MyTestCollection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11639509"
+	},
+	"item": [
+		{
+			"name": "UserList.Creation.Update",
+			"item": [
+				{
+					"name": "List user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Dom}}/api/users?page=2",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Dom}}/api/users/2",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"morpheus\",\r\n    \"job\": \"leader\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Dom}}/api/users",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"morpheus\",\r\n    \"job\": \"zion resident\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Dom}}/api/users/2",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "StatuscodeTest.CheckUsername",
+			"item": [
+				{
+					"name": "List users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is OK\", () => {\r",
+									"  pm.response.to.have.status(\"OK\"); \r",
+									"});\r",
+									"\r",
+									"pm.test(\"First name is Janet\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.data[1].first_name).to.eql(\"Janet\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Dom}}/api/users?{{Vpage}}",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "{{Vpage}}",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Single user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OR 404\", () => {\r",
+									" pm.expect(pm.response.code).to.be.oneOf([200,404]);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"//Не обязательное \r",
+									"pm.test(\"Status code is \" + data.status , function () {\r",
+									"   pm.response.to.have.status(data.status);\r",
+									"});\r",
+									"//Не обязательное "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Dom}}/api/{{User}}",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"{{User}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PrerequestScript",
+			"item": [
+				{
+					"name": "Create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"name\",pm.variables.replaceIn(\"{{$randomFirstName}}\") ),\r",
+									"pm.variables.set(\"job\",pm.variables.replaceIn(\"{{$randomJobTitle}}\") )"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"var jsonData = pm.response.json();\r",
+									"pm.environment.set(\"UID\", jsonData.id);\r",
+									"pm.environment.set(\"UJob\", jsonData.job);\r",
+									"pm.environment.set(\"UName\", jsonData.name);\r",
+									"\r",
+									"// Не обязательное\r",
+									"pm.test(\"Status code is \" + pm.response.code + \" and name: \"+ jsonData.name + \"; job: \" + jsonData.job + \"; id: \" + jsonData.id, function (){\r",
+									"if (pm.response.to.have.status(201)){\r",
+									"}\r",
+									"}); \r",
+									"//Не обязательное "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{name}}\",\r\n    \"job\": \"{{job}}\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Dom}}/api/{{User}}",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"{{User}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Change variable",
+			"item": [
+				{
+					"name": "Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"var jsonData = pm.response.json();\r",
+									"/* УТОЧНИТЬ\r",
+									"\r",
+									"*/\r",
+									"\r",
+									"// Не обязательное\r",
+									"pm.test(\"Status code is \" + pm.response.code + \" and name: \"+ jsonData.name + \"; job: \" + jsonData.job + \"; id: \" + jsonData.id, function (){\r",
+									"if (pm.response.to.have.status(200)){\r",
+									"}\r",
+									"}); \r",
+									"//Не обязательное \r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{UName}}+2\",\r\n    \"job\": \"{{UJob}}+2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Dom}}/api/users/{{UID}}",
+							"host": [
+								"{{Dom}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{UID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Vpage",
+			"value": "page=1"
+		},
+		{
+			"key": "User",
+			"value": "users"
+		}
+	]
+}
